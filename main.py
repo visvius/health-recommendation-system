@@ -25,7 +25,7 @@ def get_predicted_value(patient_symptoms):
         input_vector[symptoms_dict[item]] = 1
     return diseases_list[svcLoad.predict([input_vector])[0]]
 
-# Helper function
+# Helper function for returning data about the predicted diseases
 def helper(dis):
     desc = description[description['Disease'] == dis]['Description']
     desc = " ".join([w for w in desc])
