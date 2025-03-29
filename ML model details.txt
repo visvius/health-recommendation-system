@@ -1,0 +1,51 @@
+Medicine recommendation ML model
+
+Intro:
+
+Multiclass classification model
+
+
+
+Training Dataset:
+
+4920 rows * 133 columns
+Last columns indicated the disease
+Rest of the columns indicate the presence of symptoms in that disease indicated by the column heading
+0 -> symptom absent
+1-> symptom present
+Disease Data contained (41 diseases):
+	Fungal infection', 'Allergy', 'GERD', 'Chronic cholestasis',
+       'Drug Reaction', 'Peptic ulcer diseae', 'AIDS', 'Diabetes ',
+       'Gastroenteritis', 'Bronchial Asthma', 'Hypertension ', 'Migraine',
+       'Cervical spondylosis', 'Paralysis (brain hemorrhage)', 'Jaundice',
+       'Malaria', 'Chicken pox', 'Dengue', 'Typhoid', 'hepatitis A',
+       'Hepatitis B', 'Hepatitis C', 'Hepatitis D', 'Hepatitis E',
+       'Alcoholic hepatitis', 'Tuberculosis', 'Common Cold', 'Pneumonia',
+       'Dimorphic hemmorhoids(piles)', 'Heart attack', 'Varicose veins',
+       'Hypothyroidism', 'Hyperthyroidism', 'Hypoglycemia',
+       'Osteoarthristis', 'Arthritis',
+       '(vertigo) Paroymsal  Positional Vertigo', 'Acne',
+       'Urinary tract infection', 'Psoriasis', 'Impetigo'
+
+
+
+
+Training the model Steps:
+
+1. Create dataframe from training data
+2. Encode the output diseases using label encoder
+3. Split into train-test data
+4. Training models using the dataset
+	models trained: svc, random forest classifier, gradient boosting classifier, kNeighbors, MultinomialNB
+5. Finding the model with best accuracy
+	best result : svc, 100% accuracy for the dataset
+
+ 
+Predicting Disease using the model:
+
+1. Create an array containing only 0's of size equal to the number of columns of symptoms, 132 in this case
+2. Mark the values at the index of the symptoms as 1
+3. Predict using the svc model to obtain the encoded value of disease
+4. Use inverse encoding function to obtain the disease name from the encoded value
+
+
