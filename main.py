@@ -14,6 +14,7 @@ workout = pd.read_csv("datasets/workout_df.csv")
 description = pd.read_csv("datasets/description.csv")
 medications = pd.read_csv('datasets/medications.csv')
 diets = pd.read_csv("datasets/diets.csv")
+specialist = pd.read_csv("datasets/disease_specialist.csv")
 
 # Load model
 svcLoad = pickle.load(open('models/svc.pkl','rb'))
@@ -41,7 +42,9 @@ def helper(dis):
 
     wrkout = workout[workout['disease'] == dis] ['workout']
 
-    return desc,pre,med,die,wrkout
+    doc = specialist[specialist['Disease'] == dis]['Specialist'].iloc[0]
+
+    return desc, pre, med, die, wrkout, doc
 
 
 
@@ -66,13 +69,13 @@ def home():
             # Remove any extra characters, if any
             user_symptoms = [symptom.strip("[]' ") for symptom in user_symptoms]
             predicted_disease = get_predicted_value(user_symptoms)
-            dis_des, precautions, medications, rec_diet, workout = helper(predicted_disease)
+            dis_des, precautions, medications, rec_diet, workout, doc = helper(predicted_disease)
 
             my_precautions = []
             for i in precautions[0]:
                 my_precautions.append(i)
 
-            return render_template('index.html', predicted_disease=predicted_disease, dis_des=dis_des, my_precautions=my_precautions, medications=medications, my_diet=rec_diet, workout=workout)
+            return render_template('index.html', predicted_disease=predicted_disease, dis_des=dis_des, my_precautions=my_precautions, medications=medications, my_diet=rec_diet, workout=workout, doc=doc)
 
     return render_template('index.html')
 
