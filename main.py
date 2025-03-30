@@ -93,6 +93,30 @@ def developer():
 def blog():
     return render_template("blog.html")
 
+# @app.route('/get_symptoms')
+# def get_symptoms():
+#     symptoms = pd.read_csv('datasets/symptom-severity.csv')['Symptom'].tolist()
+#     return jsonify(symptoms)
+
+# @app.route('/get_symptoms_by_part')
+# def get_symptoms_by_part():
+#     body_part = request.args.get('body_part')
+#     df = pd.read_csv('datasets/symptom-severity.csv')
+#     symptoms = df[df['Body_Part'] == body_part]['Symptom'].tolist()
+#     return jsonify(symptoms)
+
+@app.route('/get_symptoms')
+def get_symptoms():
+    symptoms = pd.read_csv('datasets/symptom-severity.csv')['Symptom'].tolist()
+    return jsonify(symptoms)
+
+@app.route('/get_symptoms_by_part')
+def get_symptoms_by_part():
+    body_part = request.args.get('body_part')
+    df = pd.read_csv('datasets/symptom-severity.csv')
+    symptoms = df[df['Body_Part'] == body_part]['Symptom'].tolist()
+    return jsonify(symptoms)
+
 
 # runs the program with auto-reload on updates
 if __name__ == '__main__':
