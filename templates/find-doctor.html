@@ -94,58 +94,40 @@
     {% endif %}
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var map = L.map('map').setView([20, 0], 2); // Default global view
+        document.addEventListener("DOMContentLoaded", function () {
+            var map = L.map('map').setView([51.505, -0.09], 13); // Default to London
 
             // Add OpenStreetMap tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            function searchDoctors(city, doc) {
-                // Geocode the city
-                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}`)
+            // Fetch city and doc values from Flask
+            var city = "{{ city }}";
+            var doc = "{{ doc }}";
+            var apikey = "{{ apikey }}";
+            console.log(`Api : ${apikey}`);
+
+            if (city) {
+                fetch(`https://api.opencagedata.com/geocode/v1/json?q=${city}&key=${apikey}`)
                     .then(response => response.json())
-                    .then(cityData => {
-                        console.log(cityData)
-                        if (cityData.length > 0) {
-                            var cityLat = cityData[0].lat;
-                            var cityLon = cityData[0].lon;
+                    .then(data => {
+                        if (data.results.length > 0) {
+                            var lat = data.results[0].geometry.lat;
+                            var lng = data.results[0].geometry.lng;
 
-                            // Set map view to the city
-                            map.setView([cityLat, cityLon], 13);
+                            // Update map view
+                            map.setView([lat, lng], 13);
 
-                            // Search for doctors in the city
-                            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${doc}+in+${city}`)
-                                .then(response => response.json())
-                                .then(docData => {
-                                    if (docData.length > 0) {
-                                        docData.forEach(location => {
-                                            var lat = location.lat;
-                                            var lon = location.lon;
-
-                                            // Add markers for each found doctor
-                                            L.marker([lat, lon]).addTo(map)
-                                                .bindPopup(`<b>${doc}</b> found in ${city}`)
-                                                .openPopup();
-                                        });
-                                    } else {
-                                        alert(`No ${doc} found in ${city}`);
-                                    }
-                                })
-                                .catch(error => console.error('Error fetching doctor locations:', error));
+                            // Add marker for the city
+                            L.marker([lat, lng]).addTo(map)
+                                .bindPopup(`<b>${doc}</b> in ${city}`)
+                                .openPopup();
                         } else {
                             alert('City not found!');
                         }
                     })
-                    .catch(error => console.error('Error fetching city location:', error));
-            }
-
-            // Auto-trigger search if city and doc values exist
-            var city = "{{ city }}";
-            var doc = "{{ doc }}";
-            if (city && doc) {
-                searchDoctors(city, doc);
+                    .catch(error => console.error('Error fetching location:', error));
             }
         });
     </script>

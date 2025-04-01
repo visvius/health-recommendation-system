@@ -3,6 +3,7 @@ import pandas as pd
 import pickle
 from flask import Flask, request, render_template, jsonify
 from constants import diseases_list, symptoms_dict
+import os
 
 app = Flask(__name__)
 
@@ -58,7 +59,7 @@ def index():
 def home():
     if request.method == 'POST':
         symptoms = request.form.get('symptoms')
-        print(symptoms)
+        # print(symptoms)
         if symptoms =="Symptoms":
             message = "Please either write symptoms or you have written misspelled symptoms"
             return render_template('index.html', message=message)
@@ -81,9 +82,11 @@ def home():
 
 @app.route('/find-doctor')
 def find_doctor():
+    api_key = os.getenv('OPEN_CAGE_API_KEY')  # Load from environment
+    print("Api:" + api_key)
     doc = request.args.get('doc', 'Unknown Specialist')  # Get 'doc' from URL
     city = request.args.get('city', '')  # Get city from URL
-    return render_template('find-doctor.html', doc=doc, city=city)
+    return render_template('find-doctor.html', doc=doc, city=city, apikey=api_key)
 
 @app.route('/about')
 def about():
