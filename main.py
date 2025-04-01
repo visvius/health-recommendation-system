@@ -82,10 +82,10 @@ def home():
 
 @app.route('/find-doctor')
 def find_doctor():
-    api_key = os.getenv('OPEN_CAGE_API_KEY')  # Load from environment
-    print("Api:" + api_key)
-    doc = request.args.get('doc', 'Unknown Specialist')  # Get 'doc' from URL
-    city = request.args.get('city', '')  # Get city from URL
+    api_key = os.getenv('FOURSQUARE_API_KEY')  # Load from environment
+    # print("Api:" + api_key)
+    doc = request.args.get('doc', 'Unknown Specialist')  
+    city = request.args.get('city', '')
     return render_template('find-doctor.html', doc=doc, city=city, apikey=api_key)
 
 @app.route('/about')

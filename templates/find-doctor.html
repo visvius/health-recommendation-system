@@ -102,36 +102,45 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
 
-            // Fetch city and doc values from Flask
             var city = "{{ city }}";
             var doc = "{{ doc }}";
-            var apikey = "{{ apikey }}";
-            console.log(`Api : ${apikey}`);
+            var apiKey = "{{apikey}}";  // Replace with your actual API key
 
-            if (city) {
-                fetch(`https://api.opencagedata.com/geocode/v1/json?q=${city}&key=${apikey}`)
+            if (city && doc) {
+                fetch(`https://api.foursquare.com/v3/places/search?query=${doc}&near=${city}`, {
+                    method: 'GET',
+                    headers: {
+                        "accept": "application/json",
+                        "Authorization": apiKey
+                    }
+                })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.results.length > 0) {
-                            var lat = data.results[0].geometry.lat;
-                            var lng = data.results[0].geometry.lng;
+                        console.log(data);
+                        if (data.results && data.results.length > 0) {
+                            var firstLocation = data.results[0].geocodes.main;
+                            map.setView([firstLocation.latitude, firstLocation.longitude], 13);
 
-                            // Update map view
-                            map.setView([lat, lng], 13);
+                            data.results.forEach(place => {
+                                var lat = place.geocodes.main.latitude;
+                                var lng = place.geocodes.main.longitude;
+                                var name = place.name;
+                                var address = place.location.address || 'No address available';
 
-                            // Add marker for the city
-                            L.marker([lat, lng]).addTo(map)
-                                .bindPopup(`<b>${doc}</b> in ${city}`)
-                                .openPopup();
+                                // Add marker for each specialist location
+                                L.marker([lat, lng]).addTo(map)
+                                    .bindPopup(`<b>${name}</b><br>${address}`)
+                                    .openPopup();
+                            });
                         } else {
-                            alert('City not found!');
+                            alert('No specialists found!');
                         }
                     })
                     .catch(error => console.error('Error fetching location:', error));
             }
         });
-    </script>
 
+    </script>
 
 </body>
 
