@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Doctor</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <style>
+        .map-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: auto;
+            width: auto; 
+            margin: 60px 0px;
+        }
+
+        /* Style to give the map a fixed size */
+        #map {
+            height: 500px; 
+            width: 800px;
+            border: 3px solid ;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg shadow-sm" style="background: linear-gradient(135deg, #62cfe7, #4b9cc3);">
+        <div class="container-fluid">
+            <!-- Logo at the top-left corner -->
+            <div class="logo" style="margin: 0px 10px;">
+                <img class="myimg" src="{{ url_for('static', filename='img/img.png') }}" alt="">
+            </div>
+
+            <a class="navbar-brand" href="#"
+                style="font-family: 'Montserrat', sans-serif; color: #fff; font-weight: 600;">
+                <h4 style="margin-bottom: 0;">HealthCenter</h4>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{url_for('index')}}"
+                            style="color: #fff; font-weight: 500;">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about" style="color: rgba(255, 255, 255, 0.9);">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container text-center mt-5">
+        <h2>Find a {{ doc }} in Your City</h2>
+        <p class="">Enter your city below to locate nearby specialists.</p>
+
+        <form action="/find-doctor" method="GET" class="mt-4">
+            <div class="input-group mb-3 w-50 mx-auto">
+                <input type="text" name="city" class="form-control" placeholder="Enter your city" required>
+                <input type="hidden" name="doc" value="{{ doc }}"> <!-- Keep doc in the URL -->
+                <button class="btn" style="background-color: #62cfe7; color: aliceblue;" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+
+    {% if city %}
+    <!-- <p>{{doc}} in {{ city }}</p> -->
+    <div class="map-container">
+        <div id="map" ></div>
+    </div>
+    {% endif %}
+
+    <script>
+        // Initialize Leaflet map
+        var map = L.map('map').setView([51.505, -0.09], 13); // Default to London
+
+        // Add OpenStreetMap tiles to the map
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Handle form submission to update map with user city
+        document.getElementById('city-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            var city = document.getElementById('city-input').value;
+            var doc = document.querySelector("input[name='doc']").value;
+
+            // Perform a search to get the city coordinates using OpenCage or any geocoding API
+            // Example using a geocoding API (OpenCage for example)
+
+            fetch(`https://api.opencagedata.com/geocode/v1/json?q=${city}&key=YOUR_API_KEY`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.results.length > 0) {
+                        var lat = data.results[0].geometry.lat;
+                        var lng = data.results[0].geometry.lng;
+
+                        // Set new map view based on city
+                        map.setView([lat, lng], 13);
+
+                        // Add a marker to the city location
+                        L.marker([lat, lng]).addTo(map)
+                            .bindPopup(`<b>${doc}</b> in ${city}`)
+                            .openPopup();
+                    } else {
+                        alert('City not found!');
+                    }
+                })
+                .catch(error => console.error('Error with geocoding API:', error));
+        });
+    </script>
+
+</body>
+
+</html>

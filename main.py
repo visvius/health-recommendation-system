@@ -79,6 +79,11 @@ def home():
 
     return render_template('index.html')
 
+@app.route('/find-doctor')
+def find_doctor():
+    doc = request.args.get('doc', 'Unknown Specialist')  # Get 'doc' from URL
+    city = request.args.get('city', '')  # Get city from URL
+    return render_template('find-doctor.html', doc=doc, city=city)
 
 @app.route('/about')
 def about():
