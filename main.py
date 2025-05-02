@@ -99,7 +99,8 @@ def about():
 
 @app.route('/get_symptoms')
 def get_symptoms():
-    symptoms = pd.read_csv('datasets/symptom-severity.csv')['Symptom'].tolist()
+    symptoms_df = pd.read_csv(os.path.join(BASE_DIR, 'datasets', 'symptom-severity.csv'))
+    symptoms = symptoms_df['Symptom'].tolist()
     return jsonify(symptoms)
 
 @app.route('/get_symptoms_by_part')
