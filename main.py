@@ -7,18 +7,23 @@ import os
 
 app = Flask(__name__)
 
-# Load datasets
-dataset = pd.read_csv("datasets/Training.csv")
-sym_des = pd.read_csv("datasets/symtoms_df.csv")
-precautions = pd.read_csv("datasets/precautions_df.csv")
-workout = pd.read_csv("datasets/workout_df.csv")
-description = pd.read_csv("datasets/description.csv")
-medications = pd.read_csv('datasets/medications.csv')
-diets = pd.read_csv("datasets/diets.csv")
-specialist = pd.read_csv("datasets/disease_specialist.csv")
 
-# Load model
-svcLoad = pickle.load(open('models/svc.pkl','rb'))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Dataset paths
+dataset = pd.read_csv(os.path.join(BASE_DIR, "datasets", "Training.csv"))
+sym_des = pd.read_csv(os.path.join(BASE_DIR, "datasets", "symtoms_df.csv"))
+precautions = pd.read_csv(os.path.join(BASE_DIR, "datasets", "precautions_df.csv"))
+workout = pd.read_csv(os.path.join(BASE_DIR, "datasets", "workout_df.csv"))
+description = pd.read_csv(os.path.join(BASE_DIR, "datasets", "description.csv"))
+medications = pd.read_csv(os.path.join(BASE_DIR, "datasets", "medications.csv"))
+diets = pd.read_csv(os.path.join(BASE_DIR, "datasets", "diets.csv"))
+specialist = pd.read_csv(os.path.join(BASE_DIR, "datasets", "disease_specialist.csv"))
+
+# Model path
+svc_path = os.path.join(BASE_DIR, "models", "svc.pkl")
+svcLoad = pickle.load(open(svc_path, 'rb'))
+
 
 # Model Prediction function
 def get_predicted_value(patient_symptoms):
