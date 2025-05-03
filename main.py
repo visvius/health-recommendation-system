@@ -4,6 +4,8 @@ import pickle
 from flask import Flask, request, render_template, jsonify
 from constants import diseases_list, symptoms_dict
 import os
+import ast
+
 
 app = Flask(__name__)
 
@@ -109,6 +111,87 @@ def get_symptoms_by_part():
     df = pd.read_csv(os.path.join(BASE_DIR, 'datasets', 'Symptom-severity.csv'))
     symptoms = df[df['Body_Part'] == body_part]['Symptom'].tolist()
     return jsonify(symptoms)
+
+
+
+
+
+
+@app.route('/predict-json', methods=['POST'])
+def predict_json():
+    data = request.get_json()
+    if not data or 'symptoms' not in data:
+        return jsonify({'error': 'No symptoms provided'}), 400
+
+    symptoms = data['symptoms']
+    if not isinstance(symptoms, list):
+        return jsonify({'error': 'Symptoms should be a list of strings'}), 400
+
+    # 1. Clean incoming symptoms
+    user_symptoms = [s.strip("[]' ").strip() for s in symptoms]
+
+    # 2. Predict & get raw outputs
+    predicted_disease = get_predicted_value(user_symptoms)
+    desc, raw_prec, raw_meds, raw_diet, raw_workout, doc = helper(predicted_disease)
+
+    # 3. Flatten `raw_prec` (which may be [ndarray([...])] or similar)
+    my_precautions = []
+    if isinstance(raw_prec, (list, tuple)):
+        for entry in raw_prec:
+            if isinstance(entry, np.ndarray):
+                my_precautions.extend(entry.tolist())
+            elif isinstance(entry, (list, tuple)):
+                my_precautions.extend(entry)
+            else:
+                my_precautions.append(entry)
+    elif isinstance(raw_prec, np.ndarray):
+        my_precautions = raw_prec.tolist()
+    else:
+        my_precautions = [raw_prec]
+
+    # 4. Parse any "['a','b',…]" strings in medications → real list
+    clean_meds = []
+    for entry in raw_meds:
+        if isinstance(entry, str):
+            try:
+                parsed = ast.literal_eval(entry)
+                if isinstance(parsed, list):
+                    clean_meds.extend(parsed)
+                else:
+                    clean_meds.append(str(parsed))
+            except Exception:
+                clean_meds.append(entry)
+        else:
+            clean_meds.append(entry)
+
+    # 5. Same for diet
+    clean_diet = []
+    for entry in raw_diet:
+        if isinstance(entry, str):
+            try:
+                parsed = ast.literal_eval(entry)
+                if isinstance(parsed, list):
+                    clean_diet.extend(parsed)
+                else:
+                    clean_diet.append(str(parsed))
+            except Exception:
+                clean_diet.append(entry)
+        else:
+            clean_diet.append(entry)
+
+    # 6. Ensure workout is a plain list
+    wkt = raw_workout.tolist() if hasattr(raw_workout, 'tolist') else raw_workout
+
+    # 7. Return proper JSON
+    return jsonify({
+        'disease': predicted_disease,
+        'description':       desc,
+        'precautions':       my_precautions,
+        'medications':       clean_meds,
+        'diets':              clean_diet,
+        'workouts':           wkt,
+        'recommendedDoctor':        doc
+    })
 
 
 # runs the program with auto-reload on updates
