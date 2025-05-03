@@ -14,13 +14,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Dataset paths
 dataset = pd.read_csv(os.path.join(BASE_DIR, "datasets", "Training.csv"))
-sym_des = pd.read_csv(os.path.join(BASE_DIR, "datasets", "symtoms_df.csv"))
 precautions = pd.read_csv(os.path.join(BASE_DIR, "datasets", "precautions_df.csv"))
 workout = pd.read_csv(os.path.join(BASE_DIR, "datasets", "workout_df.csv"))
 description = pd.read_csv(os.path.join(BASE_DIR, "datasets", "description.csv"))
 medications = pd.read_csv(os.path.join(BASE_DIR, "datasets", "medications.csv"))
 diets = pd.read_csv(os.path.join(BASE_DIR, "datasets", "diets.csv"))
 specialist = pd.read_csv(os.path.join(BASE_DIR, "datasets", "disease_specialist.csv"))
+print("datasets import successful")
 
 # Model path
 svc_path = os.path.join(BASE_DIR, "models", "svc.pkl")
@@ -36,21 +36,21 @@ def get_predicted_value(patient_symptoms):
 
 # Helper function for returning data about the predicted diseases
 def helper(dis):
-    desc = description[description['Disease'] == dis]['Description']
-    desc = " ".join([w for w in desc])
+    print("called helper")
+    desc = description[description['Disease'] == dis]['Description'].iloc[0]
 
     pre = precautions[precautions['Disease'] == dis][['Precaution_1', 'Precaution_2', 'Precaution_3', 'Precaution_4']]
     pre = [col for col in pre.values]
 
-    med = medications[medications['Disease'] == dis]['Medication']
-    med = [med for med in med.values]
+    med = medications[medications['Disease'] == dis]['Medication'].iloc[0]
+    med = ast.literal_eval(med)
 
-    die = diets[diets['Disease'] == dis]['Diet']
-    die = [die for die in die.values]
+    die = diets[diets['Disease'] == dis]['Diet'].iloc[0]
+    die = ast.literal_eval(die)
 
     wrkout = workout[workout['disease'] == dis] ['workout']
 
-    doc = specialist[specialist['Disease'] == dis]['Specialist'].iloc[0]
+    doc = specialist[specialist['Disease'] == dis]['Specialist']
 
     return desc, pre, med, die, wrkout, doc
 
