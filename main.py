@@ -74,15 +74,11 @@ def get_predicted_value(patient_symptoms):
 
 # Helper function for returning data about the predicted diseases
 def helper(dis):
-<<<<<<< HEAD
     desc = description[description['Disease'] == dis]['Description'].iloc[0]
-=======
     print("called helper")
     dis_lower = dis.lower()
     
     desc = description[description['Disease'].str.lower() == dis_lower]['Description'].iloc[0]
->>>>>>> 57941bd30da3be1f296a98cfc4a62ec68f55d9e8
-
     pre = precautions[precautions['Disease'].str.lower() == dis_lower][['Precaution_1', 'Precaution_2', 'Precaution_3', 'Precaution_4']]
     pre = [col for col in pre.values]
 
@@ -94,11 +90,8 @@ def helper(dis):
 
     wrkout = workout[workout['disease'].str.lower() == dis_lower]['workout']
 
-<<<<<<< HEAD
     doc = specialist[specialist['Disease'] == dis]['Specialist'].iloc[0]
-=======
     doc = specialist[specialist['Disease'].str.lower() == dis_lower]['Specialist']
->>>>>>> 57941bd30da3be1f296a98cfc4a62ec68f55d9e8
 
     return desc, pre, med, die, wrkout, doc
 
