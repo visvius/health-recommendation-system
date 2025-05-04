@@ -74,20 +74,31 @@ def get_predicted_value(patient_symptoms):
 
 # Helper function for returning data about the predicted diseases
 def helper(dis):
+<<<<<<< HEAD
     desc = description[description['Disease'] == dis]['Description'].iloc[0]
+=======
+    print("called helper")
+    dis_lower = dis.lower()
+    
+    desc = description[description['Disease'].str.lower() == dis_lower]['Description'].iloc[0]
+>>>>>>> 57941bd30da3be1f296a98cfc4a62ec68f55d9e8
 
-    pre = precautions[precautions['Disease'] == dis][['Precaution_1', 'Precaution_2', 'Precaution_3', 'Precaution_4']]
+    pre = precautions[precautions['Disease'].str.lower() == dis_lower][['Precaution_1', 'Precaution_2', 'Precaution_3', 'Precaution_4']]
     pre = [col for col in pre.values]
 
-    med = medications[medications['Disease'] == dis]['Medication'].iloc[0]
+    med = medications[medications['Disease'].str.lower() == dis_lower]['Medication'].iloc[0]
     med = ast.literal_eval(med)
 
-    die = diets[diets['Disease'] == dis]['Diet'].iloc[0]
+    die = diets[diets['Disease'].str.lower() == dis_lower]['Diet'].iloc[0]
     die = ast.literal_eval(die)
 
-    wrkout = workout[workout['disease'] == dis] ['workout']
+    wrkout = workout[workout['disease'].str.lower() == dis_lower]['workout']
 
+<<<<<<< HEAD
     doc = specialist[specialist['Disease'] == dis]['Specialist'].iloc[0]
+=======
+    doc = specialist[specialist['Disease'].str.lower() == dis_lower]['Specialist']
+>>>>>>> 57941bd30da3be1f296a98cfc4a62ec68f55d9e8
 
     return desc, pre, med, die, wrkout, doc
 
@@ -155,22 +166,28 @@ def get_symptoms_by_part():
 # Vercel Frontend
 @app.route('/predict-json', methods=['POST'])
 def predict_json():
+    print("Received prediction request")
     data = request.get_json()
     if not data or 'symptoms' not in data:
+        print("Error: No symptoms provided in request")
         return jsonify({'error': 'No symptoms provided'}), 400
 
-    symptoms = data['symptoms']
-    if not isinstance(symptoms, list):
-        return jsonify({'error': 'Symptoms should be a list of strings'}), 400
-
     # 1. Clean incoming symptoms
+    symptoms = data['symptoms']
+    print(f"Raw symptoms received: {symptoms}")
+    if not isinstance(symptoms, list):
+        print("Error: Symptoms not provided as list")
+        return jsonify({'error': 'Symptoms should be a list of strings'}), 400
     user_symptoms = [s.strip("[]' ").strip() for s in symptoms]
+    print(f"Cleaned symptoms: {user_symptoms}")
 
     # 2. Predict & get raw outputs
     predicted_disease = get_predicted_value(user_symptoms)
-    desc, raw_prec, raw_meds, raw_diet, raw_workout, doc = helper(predicted_disease)
+    print(f"Predicted disease: {predicted_disease}")
+    desc, raw_prec, raw_meds, raw_diet, raw_workout, doc_series = helper(predicted_disease)
+    print(f"Raw helper outputs - Description length: {len(desc)}, Precautions: {len(raw_prec)}, Medications: {len(raw_meds)}")
 
-    # 3. Flatten `raw_prec` (which may be [ndarray([...])] or similar)
+    # 3. Flatten precautions (unchanged)…
     my_precautions = []
     if isinstance(raw_prec, (list, tuple)):
         for entry in raw_prec:
@@ -184,50 +201,55 @@ def predict_json():
         my_precautions = raw_prec.tolist()
     else:
         my_precautions = [raw_prec]
+    print(f"Processed precautions: {my_precautions}")
 
-    # 4. Parse any "['a','b',…]" strings in medications → real list
+    # 4. Clean medications (unchanged)…
     clean_meds = []
     for entry in raw_meds:
         if isinstance(entry, str):
             try:
                 parsed = ast.literal_eval(entry)
-                if isinstance(parsed, list):
-                    clean_meds.extend(parsed)
-                else:
-                    clean_meds.append(str(parsed))
+                clean_meds.extend(parsed if isinstance(parsed, list) else [str(parsed)])
             except Exception:
                 clean_meds.append(entry)
         else:
             clean_meds.append(entry)
+    print(f"Processed medications: {clean_meds}")
 
-    # 5. Same for diet
+    # 5. Clean diet (unchanged)…
     clean_diet = []
     for entry in raw_diet:
         if isinstance(entry, str):
             try:
                 parsed = ast.literal_eval(entry)
-                if isinstance(parsed, list):
-                    clean_diet.extend(parsed)
-                else:
-                    clean_diet.append(str(parsed))
+                clean_diet.extend(parsed if isinstance(parsed, list) else [str(parsed)])
             except Exception:
                 clean_diet.append(entry)
         else:
             clean_diet.append(entry)
+    print(f"Processed diet: {clean_diet}")
 
     # 6. Ensure workout is a plain list
     wkt = raw_workout.tolist() if hasattr(raw_workout, 'tolist') else raw_workout
+    print(f"Processed workouts: {wkt}")
+
+    # ——— HERE'S THE FIX ———
+    # Convert the pandas Series of specialists into a single string
+    recommended_doctor = doc_series.iloc[0] if not doc_series.empty else None
+    print(f"Recommended doctor: {recommended_doctor}")
 
     # 7. Return proper JSON
-    return jsonify({
-        'disease': predicted_disease,
-        'description':       desc,
-        'precautions':       my_precautions,
-        'medications':       clean_meds,
+    response = {
+        'disease':            predicted_disease,
+        'description':        desc,
+        'precautions':        my_precautions,
+        'medications':        clean_meds,
         'diets':              clean_diet,
         'workouts':           wkt,
-        'recommendedDoctor':        doc
-    })
+        'recommendedDoctor':  recommended_doctor
+    }
+    print("Sending response:", response)
+    return jsonify(response)
 
 
 # runs the program with auto-reload on updates
