@@ -20,23 +20,60 @@ description = pd.read_csv(os.path.join(BASE_DIR, "datasets", "description.csv"))
 medications = pd.read_csv(os.path.join(BASE_DIR, "datasets", "medications.csv"))
 diets = pd.read_csv(os.path.join(BASE_DIR, "datasets", "diets.csv"))
 specialist = pd.read_csv(os.path.join(BASE_DIR, "datasets", "disease_specialist.csv"))
-print("datasets import successful")
 
 # Model path
-svc_path = os.path.join(BASE_DIR, "models", "svc.pkl")
-svcLoad = pickle.load(open(svc_path, 'rb'))
+svc_path = os.path.join(BASE_DIR, "models", "SVC.pkl")
+SVC = pickle.load(open(svc_path, 'rb'))
+rf_path = os.path.join(BASE_DIR, "models", "RandomForest.pkl")
+RandomForest = pickle.load(open(rf_path, 'rb'))
+gb_path = os.path.join(BASE_DIR, "models", "GradientBoosting.pkl")
+GradientBoosting = pickle.load(open(gb_path, 'rb'))
+knn_path = os.path.join(BASE_DIR, "models", "KNeighbors.pkl")
+KNeighbors = pickle.load(open(knn_path, 'rb'))
+nb_path = os.path.join(BASE_DIR, "models", "MultinomialNB.pkl")
+MultinomialNB = pickle.load(open(nb_path, 'rb'))
 
+print("All models loaded successfully!")
+# print("svc load success")
 
 # Model Prediction function
 def get_predicted_value(patient_symptoms):
+    print("symptom: " ,patient_symptoms)
     input_vector = np.zeros(len(symptoms_dict))
     for item in patient_symptoms:
-        input_vector[symptoms_dict[item]] = 1
-    return diseases_list[svcLoad.predict([input_vector])[0]]
+        if item not in symptoms_dict:
+            print(f"❌ Invalid symcptom: '{item}' — not found in symptoms_dict")
+        else:
+            print(f"symptom {item} is index {symptoms_dict[item]}" )
+            input_vector[symptoms_dict[item]] = 1
+    input_df = pd.DataFrame([input_vector], columns=symptoms_dict.keys())
+
+    svc1 = SVC.predict(input_df)[0]
+    rf1 = RandomForest.predict(input_df)[0]
+    gb1 = GradientBoosting.predict(input_df)[0]
+    knn1 = KNeighbors.predict(input_df)[0]
+    mnb1 = MultinomialNB.predict(input_df)[0]
+    print("predict disease: " , [svc1, rf1, gb1, knn1, mnb1])
+
+    svc = diseases_list[SVC.predict(input_df)[0]]
+    rf = diseases_list[RandomForest.predict(input_df)[0]]
+    gb = diseases_list[GradientBoosting.predict(input_df)[0]]
+    knn = diseases_list[KNeighbors.predict(input_df)[0]]
+    mnb = diseases_list[MultinomialNB.predict(input_df)[0]]
+
+    predictions = [svc, rf, gb, knn, mnb]
+    print(predictions)
+    final_prediction = None
+    max_count = 0
+    for prediction in predictions:
+        count = predictions.count(prediction)
+        if count > max_count:
+            max_count = count
+            final_prediction = prediction
+    return final_prediction
 
 # Helper function for returning data about the predicted diseases
 def helper(dis):
-    print("called helper")
     desc = description[description['Disease'] == dis]['Description'].iloc[0]
 
     pre = precautions[precautions['Disease'] == dis][['Precaution_1', 'Precaution_2', 'Precaution_3', 'Precaution_4']]
@@ -50,7 +87,7 @@ def helper(dis):
 
     wrkout = workout[workout['disease'] == dis] ['workout']
 
-    doc = specialist[specialist['Disease'] == dis]['Specialist']
+    doc = specialist[specialist['Disease'] == dis]['Specialist'].iloc[0]
 
     return desc, pre, med, die, wrkout, doc
 
@@ -66,12 +103,11 @@ def index():
 def home():
     if request.method == 'POST':
         symptoms = request.form.get('symptoms')
-        # print(symptoms)
+        print('PREDICTION REQUEST RECEIVED WITH : ', symptoms)
         if symptoms =="Symptoms":
             message = "Please either write symptoms or you have written misspelled symptoms"
             return render_template('index.html', message=message)
         else:
-
             # Split the user's input into a list of symptoms (assuming they are comma-separated)
             user_symptoms = [s.strip() for s in symptoms.split(',')]
             # Remove any extra characters, if any
@@ -116,7 +152,7 @@ def get_symptoms_by_part():
 
 
 
-
+# Vercel Frontend
 @app.route('/predict-json', methods=['POST'])
 def predict_json():
     data = request.get_json()
