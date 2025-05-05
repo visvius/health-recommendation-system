@@ -38,10 +38,10 @@ spotting_urination,abdomen
 fatigue,chest
 weight_gain,abdomen
 anxiety,head
-cold_hands_and_feets,right-hand
-cold_hands_and_feets,left-hand
-cold_hands_and_feets,right-foot
-cold_hands_and_feets,left-foot
+cold_hands_and_feet,right-hand
+cold_hands_and_feet,left-hand
+cold_hands_and_feet,right-foot
+cold_hands_and_feet,left-foot
 mood_swings,head
 weight_loss,abdomen
 restlessness,head
@@ -74,7 +74,7 @@ yellowing_of_eyes,orbit
 acute_liver_failure,abdomen
 fluid_overload,chest
 swelling_of_stomach,abdomen
-swelled_lymph_nodes,neck
+swollen_lymph_nodes,neck
 malaise,chest
 blurred_and_distorted_vision,orbit
 phlegm,chest
@@ -112,10 +112,10 @@ puffy_face_and_eyes,head
 enlarged_thyroid,neck
 brittle_nails,right-hand
 brittle_nails,left-hand
-swollen_extremeties,left-hand
-swollen_extremeties,right-hand
-swollen_extremeties,left-foot
-swollen_extremeties,right-foot
+swollen_extremities,left-hand
+swollen_extremities,right-hand
+swollen_extremities,left-foot
+swollen_extremities,right-foot
 excessive_hunger,abdomen
 extra_marital_contacts,head
 drying_and_tingling_lips,head
@@ -145,7 +145,7 @@ weakness_of_one_body_side,left-leg
 weakness_of_one_body_side,right-leg
 loss_of_smell,head
 bladder_discomfort,abdomen
-foul_smell_ofurine,abdomen
+foul_smell_of_urine,abdomen
 continuous_feel_of_urine,abdomen
 passage_of_gases,abdomen
 internal_itching,abdomen
@@ -197,8 +197,8 @@ pus_filled_pimples,head
 pus_filled_pimples,chest
 blackheads,head
 blackheads,chest
-scurring,chest
-scurring,abdomen
+scarring,chest
+scarring,abdomen
 skin_peeling,left-hand
 skin_peeling,right-hand
 silver_like_dusting,right-hand
@@ -211,4 +211,3 @@ blister,right-foot
 blister,left-foot
 red_sore_around_nose,head
 yellow_crust_ooze,head
-prognosis,head

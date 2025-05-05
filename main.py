@@ -34,7 +34,6 @@ nb_path = os.path.join(BASE_DIR, "models", "MultinomialNB.pkl")
 MultinomialNB = pickle.load(open(nb_path, 'rb'))
 
 print("All models loaded successfully!")
-# print("svc load success")
 
 # Model Prediction function
 def get_predicted_value(patient_symptoms):
