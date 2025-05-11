@@ -49,18 +49,18 @@ def get_predicted_value(patient_symptoms):
 
     svc1 = SVC.predict(input_df)[0]
     rf1 = RandomForest.predict(input_df)[0]
-    gb1 = GradientBoosting.predict(input_df)[0]
+    # gb1 = GradientBoosting.predict(input_df)[0]
+    # mnb1 = MultinomialNB.predict(input_df)[0]
     knn1 = KNeighbors.predict(input_df)[0]
-    mnb1 = MultinomialNB.predict(input_df)[0]
-    print("predict disease: " , [knn1, svc1, rf1, gb1, mnb1])
+    print("predict disease: " , [knn1, svc1, rf1])
 
     svc = diseases_list[SVC.predict(input_df)[0]]
     rf = diseases_list[RandomForest.predict(input_df)[0]]
-    gb = diseases_list[GradientBoosting.predict(input_df)[0]]
     knn = diseases_list[KNeighbors.predict(input_df)[0]]
-    mnb = diseases_list[MultinomialNB.predict(input_df)[0]]
+    # gb = diseases_list[GradientBoosting.predict(input_df)[0]]
+    # mnb = diseases_list[MultinomialNB.predict(input_df)[0]]
 
-    predictions = [knn, svc, rf, gb, mnb]
+    predictions = [knn, svc, rf]
     print(predictions)
     final_prediction = None
     max_count = 0
